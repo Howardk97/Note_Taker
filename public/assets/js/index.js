@@ -181,3 +181,9 @@ if (window.location.pathname === '/notes') {
 }
 
 getAndRenderNotes();
+
+// class userNotes {
+//   getNotes()
+// }
+
+// module.exports = userNotes

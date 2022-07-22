@@ -1,16 +1,22 @@
 // Bring in files
-const fs = require('fs');
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const fs = require('fs');
+// const { parse } = require('path');
+const uuid = require('./helpers/uuid');
+// const userNotes = require('./public/assets/js/index');
+
+// const { userNotes } = userNotes;
+
 
 // Initialize newId to be the new unique id that is generated
-const newId = uuidv4();
+// const newId = uuidv4();
 
 // Initialize app to hold value of express
 const app = express();
 
 // Port
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.port || 3001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -18,27 +24,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // GET routes that get the html files
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, '/public/index.html'));
-// });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/index.html'));
+});
 
-// app.get('/', (req, res) => res.send('Navigate to /notes'));
+// app.get('/', (req, res) => res.send('Navigate to /api/notes'));
 
 app.get('/notes', (req, res) => {
-    res.sendFile(path.join(__dirname, '/public/notes.html'))
+    res.sendFile(path.join(__dirname, 'public/notes.html'))
+});
+
+app.get('/api/notes', (req, res) => {
+    // res.status(200).json(`${req.method} request received to get notes`);
+
+    // console.info(`${req.method} request received to get notes`);
+    res.sendFile(path.join(__dirname, './db/db.json'));
 });
 
 app.post('/api/notes', (req, res) => {
-    res.status(200).json(`${req.method} note received`);
+    // res.status(200).json(`${req.method} note received`);
 
-    console.info(`${req.method} note received`);
+    // console.info(`${req.method} note received`);
 
-    const { note } = req.body;
+    const { title, text } = req.body;
 
-    if(note) {
+    if(title && text) {
         const newNote = {
-            note,
-            newId,
+            title,
+            text,
+            newId: uuid(),
         };
 
         fs.readFile('./db/db.json', 'utf8', (err, data) => {
@@ -52,7 +66,7 @@ app.post('/api/notes', (req, res) => {
                 parsedNote.push(newNote);
 
                 fs.writeFile('./db/db.json', 
-                JSON.stringify(parsedNote),
+                JSON.stringify(parsedNote, null, 4),
                 (writeErr) => 
                 writeErr
                     ? console.error(writeErr)
